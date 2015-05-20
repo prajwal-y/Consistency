@@ -2,6 +2,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.TimeZone;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.MultiMap;
@@ -12,9 +13,19 @@ import org.vertx.java.platform.Verticle;
 
 public class KeyValueStore extends Verticle {
 	private HashMap<String, ArrayList<StoreValue>> store = null;
+	private static ReentrantLock lock = new ReentrantLock();
 
 	public KeyValueStore() {
 		store = new HashMap<String, ArrayList<StoreValue>>();
+	}
+
+	private static synchronized void PUT_eventual(KeyValueStore keyValueStore,
+			String key, StoreValue value) {
+		ArrayList<StoreValue> storeValues = keyValueStore.store.get(key);
+		if (storeValues == null) {
+			storeValues = new ArrayList<StoreValue>();
+		}
+		storeValues.add(value);
 	}
 
 	private static synchronized void PUT(KeyValueStore keyValueStore,
@@ -110,6 +121,9 @@ public class KeyValueStore extends Verticle {
 				MultiMap map = req.params();
 				String key = map.get("key");
 				String value = map.get("value");
+				String consistency = map.get("consistency");
+				if (consistency.equals("strong"))
+					lock.lock();
 				Long timestamp = Long.parseLong(map.get("timestamp"));
 				Integer region = Integer.parseInt(map.get("region"));
 				System.out.println("PUT request received for key: " + key
@@ -121,13 +135,18 @@ public class KeyValueStore extends Verticle {
 				// Prepare StoreValue object.
 				StoreValue sv = new StoreValue(adjustedTimestamp, value);
 
-				PUT(keyValueStore, key, sv);
+				if(consistency.equals("eventual"))
+					PUT_eventual(keyValueStore, key, sv);
+				else
+					PUT(keyValueStore, key, sv);
 				String response = "stored";
 				req.response().putHeader("Content-Type", "text/plain");
 				req.response().putHeader("Content-Length",
 						String.valueOf(response.length()));
 				req.response().end(response);
 				req.response().close();
+				if (consistency.equals("strong"))
+					lock.unlock();
 			}
 		});
 		routeMatcher.get("/get", new Handler<HttpServerRequest>() {

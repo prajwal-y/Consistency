@@ -11,7 +11,7 @@ public class Coordinator extends Verticle {
 
 	// Default mode: Causally consistent
 	private static String consistencyType = "causal";
-
+	
 	/**
 	 * TODO: Set the values of the following variables to the DNS names of your
 	 * three dataCenter instances Datacenter 1 is the local datacenter always
