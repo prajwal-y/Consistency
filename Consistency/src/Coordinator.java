@@ -50,25 +50,25 @@ public class Coordinator extends Verticle {
 							// range
 							if (key.equals("1")) {
 								KeyValueLib.PUT(dataCenter1, key, value,
-										timestamp.toString(), loc);
+										timestamp.toString(), loc, consistencyType);
 								KeyValueLib.PUT(dataCenter2, key, value,
-										timestamp.toString(), loc);
+										timestamp.toString(), loc, consistencyType);
 								KeyValueLib.PUT(dataCenter3, key, value,
-										timestamp.toString(), loc);
+										timestamp.toString(), loc, consistencyType);
 							} else if (key.equals("2")) {
 								KeyValueLib.PUT(dataCenter2, key, value,
-										timestamp.toString(), loc);
+										timestamp.toString(), loc, consistencyType);
 								KeyValueLib.PUT(dataCenter1, key, value,
-										timestamp.toString(), loc);
+										timestamp.toString(), loc, consistencyType);
 								KeyValueLib.PUT(dataCenter3, key, value,
-										timestamp.toString(), loc);
+										timestamp.toString(), loc, consistencyType);
 							} else if (key.equals("3")) {
 								KeyValueLib.PUT(dataCenter3, key, value,
-										timestamp.toString(), loc);
+										timestamp.toString(), loc, consistencyType);
 								KeyValueLib.PUT(dataCenter1, key, value,
-										timestamp.toString(), loc);
+										timestamp.toString(), loc, consistencyType);
 								KeyValueLib.PUT(dataCenter2, key, value,
-										timestamp.toString(), loc);
+										timestamp.toString(), loc, consistencyType);
 							}
 						} catch (IOException e) {
 							// TODO Auto-generated catch block
@@ -95,15 +95,15 @@ public class Coordinator extends Verticle {
 							switch (loc) {
 							case 1:
 								response = KeyValueLib.GET(dataCenter1, key,
-										timestamp.toString());
+										timestamp.toString(), consistencyType);
 								break;
 							case 2:
 								response = KeyValueLib.GET(dataCenter2, key,
-										timestamp.toString());
+										timestamp.toString(), consistencyType);
 								break;
 							case 3:
 								response = KeyValueLib.GET(dataCenter3, key,
-										timestamp.toString());
+										timestamp.toString(), consistencyType);
 								break;
 							default:
 								break;

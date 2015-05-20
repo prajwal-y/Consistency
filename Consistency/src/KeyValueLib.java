@@ -49,10 +49,11 @@ public class KeyValueLib {
 	 * @throws IOException
 	 */
 	public static void PUT(String dataCenter, String key, String value,
-			String timestamp, String region) throws IOException {
-		String urlString = String.format(
-				"http://%s:8080/put?key=%s&value=%s&timestamp=%s&region=%s",
-				dataCenter, key, value, timestamp, region);
+			String timestamp, String region, String consistency)
+			throws IOException {
+		String urlString = String
+				.format("http://%s:8080/put?key=%s&value=%s&timestamp=%s&region=%s&consistency=%s",
+						dataCenter, key, value, timestamp, region);
 		try {
 			switch (dataCenters.get(dataCenter)) {
 			case 1:
@@ -88,11 +89,11 @@ public class KeyValueLib {
 	 * @return
 	 * @throws IOException
 	 */
-	public static String GET(String dataCenter, String key, String timestamp)
-			throws IOException {
+	public static String GET(String dataCenter, String key, String timestamp,
+			String consistency) throws IOException {
 		String urlString = String.format(
-				"http://%s:8080/get?key=%s&timestamp=%s", dataCenter, key,
-				timestamp);
+				"http://%s:8080/get?key=%s&timestamp=%s&consistency=%s",
+				dataCenter, key, timestamp);
 		String value = URLHandler(urlString);
 		return value;
 	}
