@@ -27,6 +27,7 @@ public class KeyValueStore extends Verticle {
 			storeValues = new ArrayList<StoreValue>();
 		}
 		storeValues.add(value);
+		keyValueStore.store.put(key, storeValues);
 	}
 
 	private static synchronized void PUT(KeyValueStore keyValueStore,
