@@ -13,7 +13,8 @@ import org.vertx.java.platform.Verticle;
 
 public class KeyValueStore extends Verticle {
 	private HashMap<String, ArrayList<StoreValue>> store = null;
-	private static ReentrantLock lock = new ReentrantLock();
+	private final ReentrantLock lock = new ReentrantLock(true);
+	boolean lockflag = false;
 
 	public KeyValueStore() {
 		store = new HashMap<String, ArrayList<StoreValue>>();
@@ -122,8 +123,10 @@ public class KeyValueStore extends Verticle {
 				String key = map.get("key");
 				String value = map.get("value");
 				String consistency = map.get("consistency");
-				if (consistency.equals("strong"))
+				if (consistency.equals("strong")) {
 					lock.lock();
+					lockflag = true;
+				}
 				Long timestamp = Long.parseLong(map.get("timestamp"));
 				Integer region = Integer.parseInt(map.get("region"));
 				System.out.println("PUT request received for key: " + key
@@ -145,7 +148,7 @@ public class KeyValueStore extends Verticle {
 						String.valueOf(response.length()));
 				req.response().end(response);
 				req.response().close();
-				if (consistency.equals("strong"))
+				if (consistency.equals("strong") && !lockflag)
 					lock.unlock();
 			}
 		});
@@ -176,6 +179,15 @@ public class KeyValueStore extends Verticle {
 					req.response().putHeader("Content-Length",
 							String.valueOf(response.length()));
 				req.response().end(response);
+				req.response().close();
+			}
+		});
+		routeMatcher.get("/clear", new Handler<HttpServerRequest>() {
+			@Override
+			public void handle(final HttpServerRequest req) {
+				lockflag = false;
+				req.response().putHeader("Content-Type", "text/plain");
+				req.response().end();
 				req.response().close();
 			}
 		});

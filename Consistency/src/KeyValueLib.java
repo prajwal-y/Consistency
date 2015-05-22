@@ -97,4 +97,10 @@ public class KeyValueLib {
 		String value = URLHandler(urlString);
 		return value;
 	}
+
+	public static void CLEAR(String dataCenter) throws IOException {
+		String urlString = String.format("http://%s:8080/clear", dataCenter);
+		URLHandler(urlString);
+	}
+
 }

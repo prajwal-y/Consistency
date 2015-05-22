@@ -16,9 +16,9 @@ public class Coordinator extends Verticle {
 	 * TODO: Set the values of the following variables to the DNS names of your
 	 * three dataCenter instances Datacenter 1 is the local datacenter always
 	 */
-	private static final String dataCenter1 = "<DNS-OF-DATACENTER-1>";
-	private static final String dataCenter2 = "<DNS-OF-DATACENTER-2>";
-	private static final String dataCenter3 = "<DNS-OF-DATACENTER-3>";
+	private static final String dataCenter1 = "ec2-52-7-171-60.compute-1.amazonaws.com";
+	private static final String dataCenter2 = "ec2-52-8-71-188.us-west-1.compute.amazonaws.com";
+	private static final String dataCenter3 = "ec2-52-74-208-227.ap-southeast-1.compute.amazonaws.com";
 
 	@Override
 	public void start() {
@@ -55,6 +55,11 @@ public class Coordinator extends Verticle {
 										timestamp.toString(), loc, consistencyType);
 								KeyValueLib.PUT(dataCenter3, key, value,
 										timestamp.toString(), loc, consistencyType);
+								if(consistencyType.equals("strong")) {
+									KeyValueLib.CLEAR(dataCenter1);
+									KeyValueLib.CLEAR(dataCenter2);
+									KeyValueLib.CLEAR(dataCenter3);
+								}
 							} else if (key.equals("2")) {
 								KeyValueLib.PUT(dataCenter2, key, value,
 										timestamp.toString(), loc, consistencyType);
@@ -62,6 +67,11 @@ public class Coordinator extends Verticle {
 										timestamp.toString(), loc, consistencyType);
 								KeyValueLib.PUT(dataCenter3, key, value,
 										timestamp.toString(), loc, consistencyType);
+								if(consistencyType.equals("strong")) {
+									KeyValueLib.CLEAR(dataCenter2);
+									KeyValueLib.CLEAR(dataCenter1);
+									KeyValueLib.CLEAR(dataCenter3);
+								}
 							} else if (key.equals("3")) {
 								KeyValueLib.PUT(dataCenter3, key, value,
 										timestamp.toString(), loc, consistencyType);
@@ -69,6 +79,11 @@ public class Coordinator extends Verticle {
 										timestamp.toString(), loc, consistencyType);
 								KeyValueLib.PUT(dataCenter2, key, value,
 										timestamp.toString(), loc, consistencyType);
+								if(consistencyType.equals("strong")) {
+									KeyValueLib.CLEAR(dataCenter3);
+									KeyValueLib.CLEAR(dataCenter1);
+									KeyValueLib.CLEAR(dataCenter2);
+								}
 							}
 						} catch (IOException e) {
 							// TODO Auto-generated catch block
