@@ -11,7 +11,7 @@ public class Coordinator extends Verticle {
 
 	// Default mode: Causally consistent
 	private static String consistencyType = "causal";
-	
+
 	/**
 	 * TODO: Set the values of the following variables to the DNS names of your
 	 * three dataCenter instances Datacenter 1 is the local datacenter always
@@ -50,36 +50,45 @@ public class Coordinator extends Verticle {
 							// range
 							if (key.equals("1")) {
 								KeyValueLib.PUT(dataCenter1, key, value,
-										timestamp.toString(), loc, consistencyType);
+										timestamp.toString(), loc,
+										consistencyType);
 								KeyValueLib.PUT(dataCenter2, key, value,
-										timestamp.toString(), loc, consistencyType);
+										timestamp.toString(), loc,
+										consistencyType);
 								KeyValueLib.PUT(dataCenter3, key, value,
-										timestamp.toString(), loc, consistencyType);
-								if(consistencyType.equals("strong")) {
+										timestamp.toString(), loc,
+										consistencyType);
+								if (consistencyType.equals("strong")) {
 									KeyValueLib.CLEAR(dataCenter1);
 									KeyValueLib.CLEAR(dataCenter2);
 									KeyValueLib.CLEAR(dataCenter3);
 								}
 							} else if (key.equals("2")) {
 								KeyValueLib.PUT(dataCenter2, key, value,
-										timestamp.toString(), loc, consistencyType);
+										timestamp.toString(), loc,
+										consistencyType);
 								KeyValueLib.PUT(dataCenter1, key, value,
-										timestamp.toString(), loc, consistencyType);
+										timestamp.toString(), loc,
+										consistencyType);
 								KeyValueLib.PUT(dataCenter3, key, value,
-										timestamp.toString(), loc, consistencyType);
-								if(consistencyType.equals("strong")) {
+										timestamp.toString(), loc,
+										consistencyType);
+								if (consistencyType.equals("strong")) {
 									KeyValueLib.CLEAR(dataCenter2);
 									KeyValueLib.CLEAR(dataCenter1);
 									KeyValueLib.CLEAR(dataCenter3);
 								}
 							} else if (key.equals("3")) {
 								KeyValueLib.PUT(dataCenter3, key, value,
-										timestamp.toString(), loc, consistencyType);
+										timestamp.toString(), loc,
+										consistencyType);
 								KeyValueLib.PUT(dataCenter1, key, value,
-										timestamp.toString(), loc, consistencyType);
+										timestamp.toString(), loc,
+										consistencyType);
 								KeyValueLib.PUT(dataCenter2, key, value,
-										timestamp.toString(), loc, consistencyType);
-								if(consistencyType.equals("strong")) {
+										timestamp.toString(), loc,
+										consistencyType);
+								if (consistencyType.equals("strong")) {
 									KeyValueLib.CLEAR(dataCenter3);
 									KeyValueLib.CLEAR(dataCenter1);
 									KeyValueLib.CLEAR(dataCenter2);
@@ -107,21 +116,49 @@ public class Coordinator extends Verticle {
 					public void run() {
 						try {
 							String response = "0";
-							switch (loc) {
-							case 1:
-								response = KeyValueLib.GET(dataCenter1, key,
-										timestamp.toString(), consistencyType);
-								break;
-							case 2:
-								response = KeyValueLib.GET(dataCenter2, key,
-										timestamp.toString(), consistencyType);
-								break;
-							case 3:
-								response = KeyValueLib.GET(dataCenter3, key,
-										timestamp.toString(), consistencyType);
-								break;
-							default:
-								break;
+
+							// If strong, always go to the primary
+							//TODO: Needs to be changed to a hash function.
+							if (consistencyType.equals("strong")) {
+								if (key.equals("1")) {
+									response = KeyValueLib.GET(dataCenter1,
+											key, timestamp.toString(),
+											consistencyType);
+									if (consistencyType.equals("strong"))
+										KeyValueLib.CLEAR(dataCenter1);
+								} else if (key.equals("2")) {
+									response = KeyValueLib.GET(dataCenter2,
+											key, timestamp.toString(),
+											consistencyType);
+									if (consistencyType.equals("strong"))
+										KeyValueLib.CLEAR(dataCenter2);
+								} else if (key.equals("3")) {
+									response = KeyValueLib.GET(dataCenter3,
+											key, timestamp.toString(),
+											consistencyType);
+									if (consistencyType.equals("strong"))
+										KeyValueLib.CLEAR(dataCenter3);
+								}
+							} else {
+								switch (loc) {
+								case 1:
+									response = KeyValueLib.GET(dataCenter1,
+											key, timestamp.toString(),
+											consistencyType);
+									break;
+								case 2:
+									response = KeyValueLib.GET(dataCenter2,
+											key, timestamp.toString(),
+											consistencyType);
+									break;
+								case 3:
+									response = KeyValueLib.GET(dataCenter3,
+											key, timestamp.toString(),
+											consistencyType);
+									break;
+								default:
+									break;
+								}
 							}
 							// TODO: If response format changes, parse it
 							req.response().end(response);

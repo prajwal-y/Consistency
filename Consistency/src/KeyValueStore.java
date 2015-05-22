@@ -158,10 +158,16 @@ public class KeyValueStore extends Verticle {
 			public void handle(final HttpServerRequest req) {
 				MultiMap map = req.params();
 				String key = map.get("key");
+				String consistency = map.get("consistency");
 				System.out.print("GET request received for key: " + key
 						+ " at ");
 				System.out.println(new Timestamp(System.currentTimeMillis()
 						+ TimeZone.getTimeZone("EST").getRawOffset()));
+				
+				if (consistency.equals("strong")) {
+					lock.lock();
+					lockflag = true;
+				}
 				ArrayList<StoreValue> values = GET(keyValueStore, key);
 
 				// TODO: Prepare response. Json would be good.
@@ -181,6 +187,9 @@ public class KeyValueStore extends Verticle {
 							String.valueOf(response.length()));
 				req.response().end(response);
 				req.response().close();
+				
+				if (consistency.equals("strong") && !lockflag)
+					lock.unlock();
 			}
 		});
 		routeMatcher.get("/clear", new Handler<HttpServerRequest>() {
